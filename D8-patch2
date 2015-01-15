@@ -1,0 +1,67 @@
+diff --git a/core/modules/system/core.api.php b/core/modules/system/core.api.php
+index ad73fa0..5836ddb 100644
+--- a/core/modules/system/core.api.php
++++ b/core/modules/system/core.api.php
+@@ -989,10 +989,11 @@
+ /**
+  * @defgroup extending Extending and altering Drupal
+  * @{
+- * Overview of add-ons and alteration methods for Drupal.
+- *
++ * Overview of extensions and alteration methods for Drupal.
++ 
++ * @section sec_types Types of extensions
+  * Drupal's core behavior can be extended and altered via these three basic
+- * types of add-ons:
++ * types of extensions:
+  * - Themes: Themes alter the appearance of Drupal sites. They can include
+  *   template files, which alter the HTML markup and other raw output of the
+  *   site; CSS files, which alter the styling applied to the HTML; and
+@@ -1005,8 +1006,9 @@
+  * - Installation profiles: Installation profiles can be used to
+  *   create distributions, which are complete specific-purpose packages of
+  *   Drupal including additional modules, themes, and data. For more
+- *   information, see https://drupal.org/documentation/build/distributions.
+- *
++ *   information, see https://www.drupal.org/node/159730.
++ 
++ * @section sec_alter Alteration methods for modules
+  * Here is a list of the ways that modules can alter or extend Drupal's core
+  * behavior, or the behavior of other modules:
+  * - Hooks: Specially-named functions that a module defines, which are
+@@ -1025,6 +1027,35 @@
+  * - Routing: Providing or altering "routes", which are URLs that Drupal
+  *   responds to, or altering routing behavior with event listener classes.
+  *   See the @link menu Routing and menu topic @endlink for more information.
++ 
++ * @section sec_sample *.info.yml files
++ * Extensions must each be located in a directory whose name matches the short name 
++ * (or machine name) of the extension, and this directory must contain a file named 
++ * machine_name.info.yml (where machine_name is the machine name of the extension). 
++ * The syntax of the file is similar for modules, themes, and installation profiles.
++ * Here is a sample(module.info.yml):
++ * @code
++ * # This can be a human-readable name of the extension ,shown in the UI. 
++ * name: "My Example"
++ * # Text that is shown on the module administration page.
++ * description: Description of what this module does.
++ * # This key is used to group like modules together. In this case 'Custom' is used to
++ * # group all of your projects custom modules together making them easier to locate and enable.
++ * package: Custom
++ * # It is required and indicates the type of extension, e.g. module, theme or profile.
++ * type: module
++ * # The version number will automatically be added for contributed themes but you can write your own if 
++ * # if your theme is not being hosted on drupal.org infrastructure. 
++ * version: VERSION
++ * # Specifies the version of Drupal core that your module is compatible with.
++ * core: 8.x
++ * # The optional dependencies key provides Drupal with a list of modules that are required in 
++ * # order for your module to work correctly.
++ * dependencies:
++ * - node
++ * # This key can be used to specify the route for the administration page.
++ * configure: example.admin_index.
++ * @endcode
+  * @}
+  */
+ 
