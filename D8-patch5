@@ -1,0 +1,125 @@
+diff --git a/core/modules/system/core.api.php b/core/modules/system/core.api.php
+index ad73fa0..9fab617 100644
+--- a/core/modules/system/core.api.php
++++ b/core/modules/system/core.api.php
+@@ -989,10 +989,11 @@
+ /**
+  * @defgroup extending Extending and altering Drupal
+  * @{
+- * Overview of add-ons and alteration methods for Drupal.
+- *
++ * Overview of extensions and alteration methods for Drupal.
++ 
++ * @section sec_types Types of extensions
+  * Drupal's core behavior can be extended and altered via these three basic
+- * types of add-ons:
++ * types of extensions:
+  * - Themes: Themes alter the appearance of Drupal sites. They can include
+  *   template files, which alter the HTML markup and other raw output of the
+  *   site; CSS files, which alter the styling applied to the HTML; and
+@@ -1005,8 +1006,9 @@
+  * - Installation profiles: Installation profiles can be used to
+  *   create distributions, which are complete specific-purpose packages of
+  *   Drupal including additional modules, themes, and data. For more
+- *   information, see https://drupal.org/documentation/build/distributions.
+- *
++ *   information, see https://www.drupal.org/node/159730.
++ 
++ * @section sec_alter Alteration methods for modules
+  * Here is a list of the ways that modules can alter or extend Drupal's core
+  * behavior, or the behavior of other modules:
+  * - Hooks: Specially-named functions that a module defines, which are
+@@ -1025,6 +1027,33 @@
+  * - Routing: Providing or altering "routes", which are URLs that Drupal
+  *   responds to, or altering routing behavior with event listener classes.
+  *   See the @link menu Routing and menu topic @endlink for more information.
++ 
++ * @section sec_sample *.info.yml files
++ * Extensions must each be located in a directory whose name matches the short name 
++ * (or machine name) of the extension, and this directory must contain a file named 
++ * machine_name.info.yml (where machine_name is the machine name of the extension). 
++ * The syntax of the file is similar for modules, themes, and installation profiles.
++ * Here is a sample (for a module):
++ * @code
++ * # Human-readable name of the extension ,shown in the UI. 
++ * name: "My Example"
++ * # Text that is shown on the module administration page.
++ * description: Description of what this module does.
++ * # This key is used to group related modules together in the UI.
++ * package: Custom
++ * # Type of extension: module, theme, or profile.
++ * type: module
++ * # For custom modules, define a version number. If you extension is on drupal.org,
++ * # use version:VERSION and the packaging scripts will insert the version. 
++ * version: VERSION
++ * # Specifies the version of Drupal core that your module is compatible with.
++ * core: 8.x
++ * # The optional dependencies keys provided by Drupal with a list of modules.
++ * dependencies:
++ * - node
++ * # Route for the main administration page.
++ * configure: example.admin_index.
++ * @endcode
+  * @}
+  */
+ 
+diff --git a/core/modules/system/theme.api.php b/core/modules/system/theme.api.php
+index eb09307..ddf4a1e 100644
+--- a/core/modules/system/theme.api.php
++++ b/core/modules/system/theme.api.php
+@@ -810,18 +810,21 @@ function hook_css_alter(&$css) {
+  * depends on the elements of other modules, use hook_page_attachments_alter()
+  * instead, which runs after this hook.
+  *
+- * @param array &$page
+- *   An empty renderable array representing the page.
++ * If you try to add anything but #attached and #post_render_cache to the array
++ * an exception is thrown.
++ *
++ * @param array &$attachments
++ *   An array that you can add attachments to.
+  *
+  * @see hook_page_attachments_alter()
+  */
+-function hook_page_attachments(array &$page) {
++function hook_page_attachments(array &$attachments) {
+   // Unconditionally attach an asset to the page.
+-  $page['#attached']['library'][] = 'core/domready';
++  $attachments['#attached']['library'][] = 'core/domready';
+ 
+   // Conditionally attach an asset to the page.
+   if (!\Drupal::currentUser()->hasPermission('may pet kittens')) {
+-    $page['#attached']['library'][] = 'core/jquery';
++    $attachments['#attached']['library'][] = 'core/jquery';
+   }
+ }
+ 
+@@ -832,20 +835,19 @@ function hook_page_attachments(array &$page) {
+  * add attachments to the page that depend on another module's attachments (this
+  * hook runs after hook_page_attachments().
+  *
+- * If you want to alter the attachments added by other modules or if your module
+- * depends on the elements of other modules, use hook_page_attachments_alter()
+- * instead, which runs after this hook.
++ * If you try to add anything but #attached and #post_render_cache to the array
++ * an exception is thrown.
+  *
+- * @param array &$page
+- *   An empty renderable array representing the page.
++ * @param array &$attachments
++ *   An array that you can add attachments to.
+  *
+  * @see hook_page_attachments_alter()
+  */
+-function hook_page_attachments_alter(array &$page) {
++function hook_page_attachments_alter(array &$attachments) {
+   // Conditionally remove an asset.
+-  if (in_array('core/jquery', $page['#attached']['library'])) {
+-    $index = array_search('core/jquery', $page['#attached']['library']);
+-    unset($page['#attached']['library'][$index]);
++  if (in_array('core/jquery', $attachments['#attached']['library'])) {
++    $index = array_search('core/jquery', $attachments['#attached']['library']);
++    unset($attachments['#attached']['library'][$index]);
+   }
+ }
+ 
